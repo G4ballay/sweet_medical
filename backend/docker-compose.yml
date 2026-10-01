@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  # Servicio Backend (API)
+  api:
+    image: sweet-medical-api-image
+    container_name: sweet-medical-api-container
+    build:
+      context: . # Apunta a la raiz de este mismo repositorio (sweet-medical-api)
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env # Busca el .env en esta misma carpeta
+    networks:
+      - sweet-medical-net
+    restart: unless-stopped
+
+  # Servicio Frontend (React/Vite)
+  frontend:
+    image: sweet-medical-frontend-image
+    container_name: sweet-medical-frontend-container
+    build:
+      context: ../frontend # <-- MODIFICAR: aca va la ruta absoluta o relativa al repositorio de frontend
+      args:
+        - VITE_API_URL=http://localhost:3000
+    ports:
+      - "3001:80"
+    depends_on:
+      - api
+    networks:
+      - sweet-medical-net
+    restart: unless-stopped
+
+networks:
+  sweet-medical-net:
+    driver: bridge
